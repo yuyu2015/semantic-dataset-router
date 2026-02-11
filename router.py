@@ -44,7 +44,7 @@ class RouterResult(BaseModel):
     threshold: float
     all_scores: dict[str, float]
     context_df: pd.DataFrame | None = None
-    context_preview: str = Field(description="First N rows as string for prompt")
+    context_preview: str = Field(description="First N rows as JSON string for prompt")
 
 
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
@@ -126,7 +126,11 @@ class DatasetRouter:
             _, path = self.registry[best_id]
             if path.exists():
                 context_df = pd.read_csv(path).head(context_max_rows)
-                context_preview = context_df.to_string(index=False)
+                context_preview = context_df.to_json(
+                    orient="records",
+                    indent=2,
+                    date_format="iso",
+                )
             else:
                 best_id = None  # path missing; treat as no context
 
@@ -161,8 +165,7 @@ def build_prompt(
     if router_result.best_dataset_id and router_result.context_preview:
         parts.extend([
             "",
-            "Relevant dataset context (use this if it helps answer the question):",
-            f"Dataset: {router_result.best_dataset_id}",
+            "Internal Knowledge Base:",
             "",
             router_result.context_preview,
         ])
