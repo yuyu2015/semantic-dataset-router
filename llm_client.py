@@ -4,15 +4,14 @@ OpenRouter LLM client: send prompts and parse responses in a structured format.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from pydantic import BaseModel, Field
 
 from openai import OpenAI
 
 from config import AppSettings, get_settings
 
 
-@dataclass
-class LLMResponse:
+class LLMResponse(BaseModel):
     """Parsed response from the LLM."""
 
     content: str
@@ -21,7 +20,7 @@ class LLMResponse:
     prompt_tokens: int
     completion_tokens: int
     total_tokens: int
-    raw_message: dict  # full message object for debugging
+    raw_message: dict = Field(description="Full message object for debugging")
 
 
 class OpenRouterClient:

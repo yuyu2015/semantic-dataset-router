@@ -76,10 +76,15 @@ def _print_llm_response(resp: LLMResponse) -> None:
 def query(
     user_query: str = typer.Argument(..., help="User question"),
     threshold: float | None = typer.Option(None, "--threshold", "-t", help="Min cosine similarity to include dataset context"),
-    instruction: str = typer.Option(
-        "Answer the user's question concisely. When dataset context is provided, use it to support your answer; otherwise answer from general knowledge.",
+    instruction: str | None = typer.Option(
+        None,
         "--instruction", "-i",
-        help="General instruction for the model",
+        help="General instruction text (overrides versioned instruction)",
+    ),
+    instruction_version: str | None = typer.Option(
+        None,
+        "--instruction-version",
+        help="Version key from general_instructions.py (e.g. 1). Default when -i not set.",
     ),
     model: str | None = typer.Option(None, "--model", "-m", help="Sentence transformer model name"),
     show_scores: bool = typer.Option(False, "--scores", "-s", help="Print routing scores before the prompt"),
@@ -97,7 +102,12 @@ def query(
     llm_model = llm_model or s.default_llm_model
     router = DatasetRouter(model_name=model)
     result = router.route(query=user_query, threshold=threshold)
-    prompt = build_prompt(user_query, result, general_instruction=instruction)
+    prompt = build_prompt(
+        user_query,
+        result,
+        general_instruction=instruction,
+        instruction_version=instruction_version,
+    )
 
     if show_scores:
         console.print(Panel(f"Best: {result.best_dataset_id or 'none'} (score={result.best_score:.4f}, threshold={result.threshold})", title="Routing"))

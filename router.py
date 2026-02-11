@@ -6,10 +6,10 @@ cosine similarity, and select dataset context when above threshold.
 from __future__ import annotations
 
 from pathlib import Path
-from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
+from pydantic import BaseModel, ConfigDict, Field
 from sentence_transformers import SentenceTransformer
 
 # Default paths relative to project root
@@ -33,17 +33,18 @@ DATASET_REGISTRY: dict[str, tuple[str, Path]] = {
 DEFAULT_EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 
 
-@dataclass
-class RouterResult:
+class RouterResult(BaseModel):
     """Result of routing a query to datasets."""
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     query: str
-    best_dataset_id: str | None
+    best_dataset_id: str | None = None
     best_score: float
     threshold: float
     all_scores: dict[str, float]
-    context_df: pd.DataFrame | None
-    context_preview: str  # First N rows as string for prompt
+    context_df: pd.DataFrame | None = None
+    context_preview: str = Field(description="First N rows as string for prompt")
 
 
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
@@ -143,11 +144,18 @@ class DatasetRouter:
 def build_prompt(
     user_query: str,
     router_result: RouterResult,
-    general_instruction: str = "Answer the user's question concisely. When dataset context is provided, use it to support your answer; otherwise answer from general knowledge.",
+    general_instruction: str | None = None,
+    instruction_version: str | None = None,
 ) -> str:
     """
     Build a prompt that combines general instruction with optional dataset context.
+
+    :param general_instruction: Instruction text. If None, uses get_instruction(instruction_version).
+    :param instruction_version: Version key when general_instruction is None (see general_instructions.py).
     """
+    if general_instruction is None:
+        from general_instructions import get_instruction
+        general_instruction = get_instruction(instruction_version)
     parts = [general_instruction.strip(), "", f"User question: {user_query}"]
 
     if router_result.best_dataset_id and router_result.context_preview:
