@@ -58,3 +58,18 @@ Then set `OPENROUTER_API_KEY` (and any other overrides) in `.env`. The app loads
 **General instructions:** Versioned prompt instructions live in `general_instructions.py` (`INSTRUCTIONS` dict and `DEFAULT_VERSION`). Use `--instruction-version` (e.g. `1`) to pick a version, or `--instruction` to pass custom text and ignore the versioned file.
 
 **LLM (OpenRouter):** Set `OPENROUTER_API_KEY` in `.env` or the environment when using `--call`. The client in `llm_client.py` parses the response into a structured format (content, model, usage, finish_reason) and prints the answer plus usage in a readable layout.
+
+## Tests
+
+To run the test suite:
+
+```bash
+uv run pytest
+```
+
+To run tests with coverage (the project is configured to reach 100% coverage):
+
+```bash
+uv run pytest --cov=. --cov-report=term-missing
+```
+
