@@ -39,9 +39,9 @@ def route(
     Route a query to the best matching dataset by semantic similarity.
     Prints similarity scores and whether a dataset was selected (above threshold).
     """
-    s = get_settings()
-    threshold = threshold if threshold is not None else s.routing_threshold
-    model = model or s.embedding_model
+    app_settings = get_settings()
+    threshold = threshold if threshold is not None else app_settings.routing_threshold
+    model = model or app_settings.embedding_model
     router = DatasetRouter(model_name=model)
     result = router.route(query=query, threshold=threshold)
 
@@ -96,10 +96,10 @@ def query(
     """
     Build a prompt with optional dataset context. Use --call to send it to OpenRouter and print the LLM answer.
     """
-    s = get_settings()
-    threshold = threshold if threshold is not None else s.routing_threshold
-    model = model or s.embedding_model
-    llm_model = llm_model or s.default_llm_model
+    app_settings = get_settings()
+    threshold = threshold if threshold is not None else app_settings.routing_threshold
+    model = model or app_settings.embedding_model
+    llm_model = llm_model or app_settings.default_llm_model
     router = DatasetRouter(model_name=model)
     result = router.route(query=user_query, threshold=threshold)
     prompt = build_prompt(

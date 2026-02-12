@@ -7,7 +7,7 @@ from llm_client import LLMResponse
 def test_router_result_pydantic_model_serialization():
     """RouterResult should be a valid Pydantic model and serializable (excluding DataFrame safely)."""
     df = pd.DataFrame([{"a": 1, "b": 2}])
-    rr = RouterResult(
+    router_result = RouterResult(
         query="q",
         best_dataset_id="id",
         best_score=0.5,
@@ -17,7 +17,7 @@ def test_router_result_pydantic_model_serialization():
         context_preview='[{"a": 1, "b": 2}]',
     )
 
-    dumped = rr.model_dump()
+    dumped = router_result.model_dump()
     # DataFrame should be present as object, and preview as string
     assert dumped["query"] == "q"
     assert dumped["best_dataset_id"] == "id"

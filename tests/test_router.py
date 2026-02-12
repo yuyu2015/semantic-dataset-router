@@ -110,7 +110,7 @@ def test_dataset_router_missing_file_sets_no_context(monkeypatch, tmp_path):
 
 def test_build_prompt_uses_versioned_instruction_when_none(monkeypatch):
     """build_prompt should pull instruction from general_instructions when not provided."""
-    rr = RouterResult(
+    router_result = RouterResult(
         query="q",
         best_dataset_id=None,
         best_score=0.0,
@@ -122,14 +122,14 @@ def test_build_prompt_uses_versioned_instruction_when_none(monkeypatch):
 
     from general_instructions import get_instruction, DEFAULT_VERSION
 
-    prompt = build_prompt("What is this?", rr, general_instruction=None, instruction_version=None)
+    prompt = build_prompt("What is this?", router_result, general_instruction=None, instruction_version=None)
     assert get_instruction(DEFAULT_VERSION).split()[0] in prompt
     assert "User question: What is this?" in prompt
 
 
 def test_build_prompt_includes_internal_knowledge_base_when_context_present():
     """When context is present, prompt should include the 'Internal Knowledge Base' section."""
-    rr = RouterResult(
+    router_result = RouterResult(
         query="q",
         best_dataset_id="shopping_habits",
         best_score=0.9,
@@ -139,7 +139,7 @@ def test_build_prompt_includes_internal_knowledge_base_when_context_present():
         context_preview='[{"x": 1}]',
     )
 
-    prompt = build_prompt("What is this?", rr, general_instruction="Instr")
+    prompt = build_prompt("What is this?", router_result, general_instruction="Instr")
     assert "Internal Knowledge Base:" in prompt
     assert '[{"x": 1}]' in prompt
 

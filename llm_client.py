@@ -36,17 +36,17 @@ class OpenRouterClient:
         default_model: str | None = None,
         settings: AppSettings | None = None,
     ):
-        s = settings or get_settings()
-        self._api_key = api_key if api_key is not None else s.openrouter_api_key
+        app_settings = settings or get_settings()
+        self._api_key = api_key if api_key is not None else app_settings.openrouter_api_key
         if not self._api_key:
             raise ValueError(
                 "OpenRouter API key required. Set OPENROUTER_API_KEY in .env or pass api_key=..."
             )
         self._client = OpenAI(
-            base_url=base_url or s.openrouter_base_url,
+            base_url=base_url or app_settings.openrouter_base_url,
             api_key=self._api_key,
         )
-        self.default_model = default_model if default_model is not None else s.default_llm_model
+        self.default_model = default_model if default_model is not None else app_settings.default_llm_model
 
     def chat(
         self,

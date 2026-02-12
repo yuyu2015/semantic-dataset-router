@@ -43,9 +43,9 @@ DEFAULT_VERSION = "3"
 
 def get_instruction(version: str | None = None) -> str:
     """Return the instruction text for the given version. Uses DEFAULT_VERSION if version is None or missing."""
-    v = version or DEFAULT_VERSION
-    if v not in INSTRUCTIONS:
+    resolved_version = version or DEFAULT_VERSION
+    if resolved_version not in INSTRUCTIONS:
         raise KeyError(
-            f"Unknown instruction version {v!r}. Available: {list(INSTRUCTIONS.keys())}"
+            f"Unknown instruction version {resolved_version!r}. Available: {list(INSTRUCTIONS.keys())}"
         )
-    return INSTRUCTIONS[v].strip()
+    return INSTRUCTIONS[resolved_version].strip()
